@@ -5,9 +5,13 @@ import sigexport.data
 import sigexport
 from typing import Optional, List, Dict, Any
 import platform
+import os
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Signal MCP Server", "0.1.0")
+
+# Get Signal decryption key from environment variable (Linux only - macOS uses Keychain)
+SIGNAL_KEY = os.environ.get("SIGNAL_KEY") if platform.system() == "Linux" else None
 
 
 def get_default_signal_dir() -> Path:
@@ -49,10 +53,12 @@ def signal_list_chats(
         Returns:
         List[Dict[str, Any]]: A list of dictionaries containing Signal chat details.
     """
+    # Use environment key if not provided
+    effective_key = key or SIGNAL_KEY
     convos, contacts, self_contact = sigexport.data.fetch_data(
         source_dir=source_dir,
         password=password,
-        key=key,
+        key=effective_key,
         chats=chats,
         include_empty=include_empty,
         include_disappearing=include_disappearing,
@@ -95,10 +101,12 @@ def signal_get_chat_messages(
     Returns:
         List[Dict[str, Any]]: A list of dictionaries containing messages from the specified Signal chat.
     """
+    # Use environment key if not provided
+    effective_key = key or SIGNAL_KEY
     convos, contacts, self_contact = sigexport.data.fetch_data(
         source_dir=source_dir,
         password=password,
-        key=key,
+        key=effective_key,
         chats=chats,
         include_empty=include_empty,
         include_disappearing=include_disappearing,
@@ -173,10 +181,12 @@ def signal_search_chat(
     Returns:
         List[Dict[str, Any]]: A list of messages that match the search query.
     """
+    # Use environment key if not provided
+    effective_key = key or SIGNAL_KEY
     convos, contacts, self_contact = sigexport.data.fetch_data(
         source_dir=source_dir,
         password=password,
-        key=key,
+        key=effective_key,
         chats=chats,
         include_empty=include_empty,
         include_disappearing=include_disappearing,
